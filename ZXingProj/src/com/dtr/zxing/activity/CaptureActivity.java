@@ -346,37 +346,41 @@ public final class CaptureActivity extends Activity implements
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if(requestCode==1){
-			String photoPath=null;
+	protected void onActivityResult(int requestCode, int resultCode,
+			Intent intent) {
+		if (requestCode == 1) {
+			String photoPath = null;
 			// 获取选中图片的路径
-			Cursor cursor = getContentResolver().query(
-					intent.getData(), null, null, null, null);
+			Cursor cursor = getContentResolver().query(intent.getData(), null,
+					null, null, null);
 			if (cursor.moveToFirst()) {
-				 photoPath = cursor.getString(cursor
+				photoPath = cursor.getString(cursor
 						.getColumnIndex(MediaStore.Images.Media.DATA));
 			}
 			cursor.close();
-			if(photoPath==null){
-			return;	
+			if (photoPath == null) {
+				return;
 			}
 			Bitmap mBitmap = BitmapUtils.getCompressedBitmap(photoPath);
-			if(mBitmap==null){
+			Log.e("message", photoPath);
+			if (mBitmap == null) { 
 				Log.e("message", photoPath);
 				return;
 			}
-			 try {
-				BitmapLuminanceSource source = new BitmapLuminanceSource(mBitmap);
+			try {
+				BitmapLuminanceSource source = new BitmapLuminanceSource(
+						mBitmap);
 				HybridBinarizer binarizer = new HybridBinarizer(source);
-				BinaryBitmap image = new BinaryBitmap(
-						binarizer);
+				BinaryBitmap image = new BinaryBitmap(binarizer);
 				MultiFormatReader reader = new MultiFormatReader();
-				Map<DecodeHintType,Object> hints=new HashMap<DecodeHintType, Object>();
-				hints.put(DecodeHintType.POSSIBLE_FORMATS, DecodeFormatManager.getQrCodeFormats());
+				Map<DecodeHintType, Object> hints = new HashMap<DecodeHintType, Object>();
+				hints.put(DecodeHintType.POSSIBLE_FORMATS,
+						DecodeFormatManager.getQrCodeFormats());
 				hints.put(DecodeHintType.CHARACTER_SET, "UTF8");
 				reader.setHints(hints);
 				Result result = reader.decodeWithState(image);
-				Toast.makeText(CaptureActivity.this, result.getText(), 0).show();
+				Toast.makeText(CaptureActivity.this, result.getText(), 0)
+						.show();
 			} catch (Exception e) {
 				Log.e("message", e.toString());
 				Toast.makeText(CaptureActivity.this, "未识别到二维码!", 0).show();
